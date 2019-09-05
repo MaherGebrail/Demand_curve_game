@@ -7,13 +7,6 @@ import matplotlib.pyplot as plt
 
 
 class Game:
-    """
-    # when you edit code for taking input while processing
-
-    def __init__(self, product_name,user_num):
-       self.user_price = user_num  .. # you can do this or just import the user_from another side
-       and le self.user price get it , from the global scope
-    """
 
     def __init__(self, product_name):
         """
@@ -282,9 +275,6 @@ class Game:
         """
         A function to make the agent choose it's best price , for best profit,
         from the calcuated revenue that happened in get_revenue function.
-
-        # the function actually take every price and calculate if used , how many revenue for agent will get,
-        # so , it make the agent choose always the best revenue for it.. so it also know the best price to use.
 
         :param list_prices: the list of prices that agent choose from it's best price
         :param number_population: number of items in the market
