@@ -22,19 +22,23 @@ class Game:
         self.share_user_list = []
         self.time_line = []
         self.user_price = None
-        # self.user_price = 58
+        self.agent_prices = None
+        self.revenue_agent = None
+        self.customer_revenue = None
+        self.chosen_number = None
+        self.end_time = 0
         self.choose_game(self.product_name)
 
         print("user_last_number", self.user_price)
 
         if self.revenue_user_all > self.revenue_agent_all:
-            print(f"You won agent .. :\n    You got {round(self.revenue_user_all, 2)} ,"
+            print(f"You won agent .. :\nYou got {round(self.revenue_user_all, 2)} ,"
                   f" agent got : {round(self.revenue_agent_all, 2)}")
             print(
                 f"You won agent by"
                 f" {round(100 - round(((self.revenue_agent_all / self.revenue_user_all) * 100), 2), 2)} %")
         else:
-            print(f"Agent won .. :\n agent got {round(self.revenue_agent_all, 2)} , "
+            print(f"Agent won .. :\nAgent got {round(self.revenue_agent_all, 2)} , "
                   f"you got : {round(self.revenue_user_all, 2)}")
             print(
                 f"Agent won You by "
@@ -65,10 +69,10 @@ class Game:
         print("cost range :", cost_range)
         ag_prices = [15, 16, 18, 21, 25, 30]
 
-        loops_fruits = [[math.floor(random.random() * 200 + 900), 14],  # Summer
-                        [math.floor(random.random() * 100 + 450), 12],  # Fall
-                        [math.floor(random.random() * 100 + 250), 13],  # Winter
-                        [math.floor(random.random() * 200 + 600), 15]]  # Spring
+        loops_fruits = [[math.floor(random.random() * 200 + 900), 200],  # Summer
+                        [math.floor(random.random() * 100 + 450), 80],  # Fall
+                        [math.floor(random.random() * 100 + 250), 40],  # Winter
+                        [math.floor(random.random() * 200 + 600), 100]]  # Spring
 
         self.start_game(cost_range, ag_prices, loops_fruits)
         return
@@ -80,10 +84,10 @@ class Game:
         cost_range = list(range(4, 8))
         ag_prices = [6, 7, 8, 10, 13, 17]
 
-        loops_service = [[math.floor(random.random() * 5000 + 5000), 5],  # Summer
-                         [math.floor(random.random() * 2000 + 2000), 6],  # Fall
-                         [math.floor(random.random() * 1000 + 1000), 8],  # Winter
-                         [math.floor(random.random() * 2000 + 2000), 10]]  # Spring
+        loops_service = [[math.floor(random.random() * 5000 + 5000), 1000],  # Summer
+                         [math.floor(random.random() * 2000 + 2000), 400],  # Fall
+                         [math.floor(random.random() * 1000 + 1000), 200],  # Winter
+                         [math.floor(random.random() * 2000 + 2000), 400]]  # Spring
 
         self.start_game(cost_range, ag_prices, loops_service)
 
@@ -95,10 +99,10 @@ class Game:
         print("cost range :", cost_range)
         ag_prices = [46, 47, 50, 55, 65, 80]
 
-        loops_wine = [[math.floor(random.random() * 200 + 200), 8],  # Summer
-                      [math.floor(random.random() * 100 + 100), 5],  # Fall
-                      [math.floor(random.random() * 100 + 100), 6],  # Winter
-                      [math.floor(random.random() * 200 + 200), 8]]  # Spring
+        loops_wine = [[math.floor(random.random() * 200 + 200), 40],  # Summer
+                      [math.floor(random.random() * 100 + 100), 20],  # Fall
+                      [math.floor(random.random() * 100 + 100), 60],  # Winter
+                      [math.floor(random.random() * 200 + 200), 30]]  # Spring
 
         self.start_game(cost_range, ag_prices, loops_wine)
 
@@ -118,55 +122,62 @@ class Game:
 
     def start_game(self, cost_range, agent_prices, loops):
         item_cost_ = random.choice(cost_range)
-        print("item cost :", item_cost_)
+        print("*************************item cost : ", item_cost_)
 
         self.user_price = agent_prices[-1]
 
         threading_ = threading.Thread(target=self.get_user_input_while_running, args=(agent_prices,))
         threading_.daemon = True
         threading_.start()
+        threading_p = threading.Thread(target=self.print_status)
+        threading_p.daemon = True
+        threading_p.start()
 
         print("Summer")
-        end_time = 0
+        # end_time = 0
         summer_time_loop_time = 15 / loops[0][1]
-        while end_time < 15:
+        while self.end_time < 15:
             items_quantity = loops[0][0]
 
-            end_time = self.session_loop(agent_prices, items_quantity, item_cost_,
-                                         end_time, summer_time_loop_time)
+            self.agent_prices, self.revenue_agent, \
+            self.customer_revenue, self.chosen_number = self.session_loop(agent_prices, items_quantity, item_cost_,
+                                                   summer_time_loop_time)
 
         print("Fall")
         fall_time_loop_time = 15 / loops[1][1]
         item_cost_ = random.choice(cost_range)
-        print("item cost :", item_cost_)
+        print("*************************item cost :", item_cost_)
 
-        while end_time < 30:
+        while self.end_time < 30:
             items_quantity = loops[1][0]
 
-            end_time = self.session_loop(agent_prices, items_quantity, item_cost_, end_time,
-                                         fall_time_loop_time)
+            self.agent_prices, self.revenue_agent, self.customer_revenue, \
+            self.chosen_number = self.session_loop(agent_prices, items_quantity, item_cost_,
+                                                   fall_time_loop_time)
 
         print("Winter")
         winter_time_loop_time = 15 / loops[2][1]
         item_cost_ = random.choice(cost_range)
-        print("item cost :", item_cost_)
+        print("*************************item cost : ", item_cost_)
 
-        while end_time < 45:
+        while self.end_time < 45:
             items_quantity = loops[2][0]
 
-            end_time = self.session_loop(agent_prices, items_quantity, item_cost_, end_time,
-                                         winter_time_loop_time)
+            self.agent_prices, self.revenue_agent, self.customer_revenue, \
+            self.chosen_number = self.session_loop(agent_prices, items_quantity, item_cost_,
+                                                   winter_time_loop_time)
 
         print("Spring")
         spring_time_loop_time = 15 / loops[3][1]
         item_cost_ = random.choice(cost_range)
-        print("item cost :", item_cost_)
+        print("*************************item cost : ", item_cost_)
 
-        while end_time < 60:
+        while self.end_time < 60:
             items_quantity = loops[3][0]
 
-            end_time = self.session_loop(agent_prices, items_quantity, item_cost_,
-                                         end_time, spring_time_loop_time)
+            self.agent_prices, self.revenue_agent, self.customer_revenue, \
+            self.chosen_number = self.session_loop(agent_prices, items_quantity, item_cost_,
+                                                   spring_time_loop_time)
 
     def get_user_input_while_running(self, allowed_prices):
         while True:
@@ -181,7 +192,7 @@ class Game:
                 print("invalid input")
                 pass
 
-    def session_loop(self, agent_prices_, items_quantity_, item_cost, end_time_, time_loop_time):
+    def session_loop(self, agent_prices_, items_quantity_, item_cost, time_loop_time):
         """
         it's a function that responsible for how the game work every part on second in the session,
         it takes ...
@@ -195,27 +206,34 @@ class Game:
                 not a random events of time !.
 
         """
-        print(f"Please input your price from list {agent_prices_}")
+
         time.sleep(time_loop_time)
         items_quantity_ = self.shift_curve(items_quantity_)
         chosen_number, revenue_agent, \
             customer_revenue, user_share = self.get_agent_price(agent_prices_,
                                                                 items_quantity_, item_cost, self.user_price)
 
-        print("revenue_agent", revenue_agent)
-        print("revenue_competitor", customer_revenue)
         self.revenue_agent_all += revenue_agent
         self.revenue_user_all += customer_revenue
         self.revenue_user_all_list.append(customer_revenue)
-        print("agent price :", chosen_number)
-        print("player cost : ", self.user_price)
-        print("game time : ", end_time_)
-        self.time_line.append(end_time_)
+        self.time_line.append(self.end_time)
 
-        end_time_ += time_loop_time
+        self.end_time += time_loop_time
         self.share_user_list.append(user_share)
 
-        return end_time_
+        return agent_prices_, revenue_agent, customer_revenue, chosen_number
+
+    def print_status(self):
+        """Function to print the statues of the game every 2 second """
+        while True:
+            time.sleep(2)
+            print(f"Please input your price from list {self.agent_prices}, "
+                  f"or it will still constant")
+            print(f"the report of every 2 seconds :\n *** \nLast agent revenue : {self.revenue_agent}\n"
+                  f"Last player revenue, {self.customer_revenue} \n"
+                  f"agent price : {self.chosen_number} \n"
+                  f"player cost :  {self.user_price} \n"
+                  f"game time :  {self.end_time} \n ***")
 
     @staticmethod
     def shift_curve(items_quantity_):
@@ -357,7 +375,7 @@ class Game:
         return
 
 
-# app = Game('groceries')
+app = Game('groceries')
 # app = Game('service')
 # app = Game('refined')
-app = Game('luxury')
+# app = Game('luxury')
